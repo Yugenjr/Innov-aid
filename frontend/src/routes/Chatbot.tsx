@@ -160,14 +160,19 @@ export default function Chatbot() {
         ))}
         {chatMutation.isPending && (
           <div className="flex justify-start animate-fade-up">
-            <div className="max-w-[75%] px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 rounded-bl-sm">
+            <div className="max-w-[75%] px-4 py-3 rounded-2xl bg-blue-50 border border-blue-200 rounded-bl-sm">
               <div className="flex items-center gap-3">
                 <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></span>
-                  <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:150ms]"></span>
-                  <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:300ms]"></span>
+                  <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></span>
+                  <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:150ms]"></span>
+                  <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:300ms]"></span>
                 </div>
-                <span className="text-gray-600 text-sm">AI is thinking...</span>
+                <div className="text-blue-700 text-sm">
+                  <div>🧠 AI is processing your request...</div>
+                  <div className="text-xs text-blue-600 mt-1">
+                    First request may take 5-10 minutes while loading the AI model
+                  </div>
+                </div>
               </div>
             </div>
           </div>

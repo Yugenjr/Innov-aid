@@ -4,7 +4,7 @@ export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
 
 export const api = axios.create({
   baseURL: API_BASE,
-  timeout: 30000, // 30 second timeout
+  timeout: 600000, // 10 minute timeout for AI model loading
 })
 
 // Add request interceptor for debugging

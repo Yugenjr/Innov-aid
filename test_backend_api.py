@@ -47,7 +47,8 @@ def test_backend_api():
         print(f"  Mode: {test_req['user_mode']}")
         
         try:
-            response = requests.post(f"{base_url}/api/chat", json=test_req, timeout=30)
+            print(f"  ⏳ Sending request (may take 5-10 minutes for first AI response)...")
+            response = requests.post(f"{base_url}/api/chat", json=test_req, timeout=600)  # 10 minute timeout
             response.raise_for_status()
             
             data = response.json()

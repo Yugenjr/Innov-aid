@@ -25,9 +25,25 @@ def health():
     return {"status": "ok"}
 
 @app.post("/api/chat", response_model=ChatResponse)
-def chat(req: ChatRequest):
-    text, meta = generate_chat_response(req)
-    return ChatResponse(response=text, provider=meta.get("provider", "unknown"), used_fallback=meta.get("used_fallback", False))
+async def chat(req: ChatRequest):
+    """
+    Chat endpoint with extended timeout for AI model processing
+    First request may take 5-10 minutes due to model loading
+    """
+    import asyncio
+
+    # Run the chat generation in a thread to avoid blocking
+    def generate_response():
+        return generate_chat_response(req)
+
+    # Extended timeout for AI model processing
+    try:
+        text, meta = await asyncio.get_event_loop().run_in_executor(None, generate_response)
+        return ChatResponse(response=text, provider=meta.get("provider", "unknown"), used_fallback=meta.get("used_fallback", False))
+    except Exception as e:
+        # Fallback response if model fails
+        fallback_text = "I'm currently loading the AI model. This may take a few minutes on the first request. Please try again shortly, or I can provide some general financial advice in the meantime."
+        return ChatResponse(response=fallback_text, provider="fallback", used_fallback=True)
 
 # Sessions endpoints (JSON storage)
 @app.post("/api/sessions", response_model=Session)

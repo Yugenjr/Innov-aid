@@ -53,6 +53,10 @@ def install_frontend_deps():
         subprocess.run(["npm", "install"], cwd="frontend", check=True)
         print("✓ Frontend dependencies installed")
         return True
+    except FileNotFoundError:
+        print("✗ npm not found. Please install Node.js from https://nodejs.org/")
+        print("  After installing Node.js, restart your terminal and try again.")
+        return False
     except subprocess.CalledProcessError as e:
         print(f"✗ Failed to install frontend dependencies: {e}")
         return False
@@ -78,6 +82,10 @@ def start_frontend():
     try:
         process = subprocess.Popen(["npm", "run", "dev"], cwd="frontend")
         return process
+    except FileNotFoundError:
+        print("✗ npm not found. Cannot start frontend server.")
+        print("  Please install Node.js from https://nodejs.org/")
+        return None
     except Exception as e:
         print(f"✗ Failed to start frontend: {e}")
         return None
@@ -106,16 +114,20 @@ def main():
     # Check prerequisites
     if not check_python():
         return
-    
-    if not check_node():
-        return
-    
+
+    node_available = check_node()
+
     # Install dependencies
     if not install_backend_deps():
         return
-    
-    if not install_frontend_deps():
-        return
+
+    frontend_ready = False
+    if node_available:
+        frontend_ready = install_frontend_deps()
+        if not frontend_ready:
+            print("⚠️  Frontend dependencies failed to install, but continuing with backend only...")
+    else:
+        print("⚠️  Node.js not available, running backend only...")
     
     # Start servers
     backend_process = start_backend()
@@ -126,16 +138,23 @@ def main():
     if not wait_for_backend():
         backend_process.terminate()
         return
-    
-    frontend_process = start_frontend()
-    if not frontend_process:
-        backend_process.terminate()
-        return
-    
-    print("\n🎉 Both servers are running!")
-    print("📱 Frontend: http://localhost:5173")
-    print("🔧 Backend API: http://localhost:8000")
-    print("📚 API Docs: http://localhost:8000/docs")
+
+    frontend_process = None
+    if frontend_ready and node_available:
+        frontend_process = start_frontend()
+        if not frontend_process:
+            print("⚠️  Frontend failed to start, but backend is running...")
+
+    if frontend_process:
+        print("\n🎉 Both servers are running!")
+        print("📱 Frontend: http://localhost:5173")
+        print("🔧 Backend API: http://localhost:8000")
+        print("📚 API Docs: http://localhost:8000/docs")
+    else:
+        print("\n🎉 Backend server is running!")
+        print("🔧 Backend API: http://localhost:8000")
+        print("📚 API Docs: http://localhost:8000/docs")
+        print("⚠️  Frontend not available - install Node.js to run the React app")
     print("\nPress Ctrl+C to stop both servers")
     
     # Handle shutdown
