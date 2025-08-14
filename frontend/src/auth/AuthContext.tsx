@@ -19,8 +19,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    // Simple client-side auth stub; replace with real API later
-    if (!email || !password) throw new Error('Enter email and password')
+    // Enhanced client-side auth validation
+    if (!email || !password) {
+      throw new Error('Please enter both email and password')
+    }
+
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      throw new Error('Please enter a valid email address')
+    }
+
+    // Password length validation
+    if (password.length < 6) {
+      throw new Error('Password must be at least 6 characters long')
+    }
+
+    // Simulate API delay for better UX testing
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    // For demo purposes, accept any valid email/password combination
+    // In a real app, this would make an API call to authenticate
     const u = { email }
     localStorage.setItem('fc_user', JSON.stringify(u))
     setUser(u)

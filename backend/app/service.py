@@ -126,23 +126,121 @@ def generate_chat_response(req) -> Tuple[str, Dict]:
     if _load_model():
         try:
             provider = "granite"
-            return _generate_with_granite(prompt), {"provider": provider, "used_fallback": used_fallback}
-        except Exception:
+            response = _generate_with_granite(prompt)
+            if response and len(response.strip()) > 10:
+                return response, {"provider": provider, "used_fallback": used_fallback}
+        except Exception as e:
+            print(f"Granite model error: {e}")
             used_fallback = True
 
     # Fallback to Gemini if configured
     if GEMINI_API_KEY:
         provider = "gemini"
         try:
-            return _generate_with_gemini(prompt), {"provider": provider, "used_fallback": used_fallback}
-        except Exception:
-            pass
+            response = _generate_with_gemini(prompt)
+            if response and len(response.strip()) > 10:
+                return response, {"provider": provider, "used_fallback": used_fallback}
+        except Exception as e:
+            print(f"Gemini API error: {e}")
 
-    # Final fallback
+    # Enhanced rule-based fallback
     provider = "rule_based"
-    return (
-        "Here are some general personal finance tips: build an emergency fund, pay down high-interest debt, "
-        "budget using the 50/30/20 rule, and invest regularly in low-cost diversified funds.",
-        {"provider": provider, "used_fallback": True},
-    )
+    return _generate_rule_based_response(req.user_input, req.user_mode or "professional"), {"provider": provider, "used_fallback": True}
+
+
+def _generate_rule_based_response(user_input: str, user_mode: str) -> str:
+    """Generate rule-based responses for common financial questions"""
+    user_input_lower = user_input.lower()
+
+    # Budget-related responses
+    if any(word in user_input_lower for word in ["budget", "budgeting", "spending", "expenses"]):
+        if user_mode == "student":
+            return """🎓 **Student Budgeting Guide**
+
+1. **Track Your Income & Expenses**: Use apps like Mint or YNAB to monitor where your money goes
+2. **Follow the 50/30/20 Rule**: 50% needs, 30% wants, 20% savings
+3. **Student-Specific Tips**:
+   • Cook meals instead of eating out
+   • Buy used textbooks or rent them
+   • Take advantage of student discounts
+
+💡 **Pro Tip**: Start with a simple spreadsheet to track expenses for one month."""
+        else:
+            return """💼 **Professional Budgeting Strategy**
+
+1. **Zero-Based Budgeting**: Assign every dollar a purpose before the month begins
+2. **Automate Your Finances**: Set up automatic transfers to savings and investments
+3. **Advanced Strategies**:
+   • Use multiple savings accounts for different goals
+   • Review and adjust quarterly
+   • Consider tax-advantaged accounts
+
+📊 **Recommendation**: Aim to save 20-25% of gross income for optimal financial health."""
+
+    # Investment-related responses
+    elif any(word in user_input_lower for word in ["invest", "investment", "stocks", "portfolio"]):
+        if user_mode == "student":
+            return """🎓 **Student Investment Basics**
+
+1. **Start Small**: Begin with $25-50/month in a low-cost index fund
+2. **Use Student-Friendly Platforms**: Consider Acorns, Stash, or Robinhood
+3. **Focus on Learning**:
+   • Read "The Bogleheads' Guide to Investing"
+   • Understand compound interest
+   • Learn about diversification
+
+⚠️ **Important**: Only invest money you won't need for 5+ years."""
+        else:
+            return """💼 **Professional Investment Strategy**
+
+1. **Asset Allocation**: Diversify across stocks, bonds, and real estate
+2. **Tax-Advantaged Accounts**: Max out 401(k) match, then Roth IRA
+3. **Advanced Strategies**:
+   • Dollar-cost averaging into index funds
+   • Consider target-date funds for simplicity
+   • Rebalance annually
+
+📈 **Target**: Aim for 10-15% total savings rate including employer match."""
+
+    # Emergency fund responses
+    elif any(word in user_input_lower for word in ["emergency", "fund", "savings"]):
+        return """🚨 **Emergency Fund Essentials**
+
+1. **Target Amount**: 3-6 months of essential expenses
+2. **Where to Keep It**: High-yield savings account (2-5% APY)
+3. **Building Strategy**:
+   • Start with $500-1000 mini emergency fund
+   • Save $25-100 per week consistently
+   • Use windfalls (tax refunds, bonuses)
+
+💰 **Quick Start**: Set up automatic transfer of $50/week to savings."""
+
+    # Debt-related responses
+    elif any(word in user_input_lower for word in ["debt", "credit card", "loan", "pay off"]):
+        return """💳 **Debt Elimination Strategy**
+
+1. **List All Debts**: Amount, minimum payment, interest rate
+2. **Choose Your Method**:
+   • **Debt Avalanche**: Pay minimums, extra to highest interest rate
+   • **Debt Snowball**: Pay minimums, extra to smallest balance
+3. **Accelerate Payoff**:
+   • Use windfalls for extra payments
+   • Consider balance transfers for high-interest debt
+   • Avoid taking on new debt
+
+🎯 **Priority**: Pay off credit cards first (typically 18-25% interest)."""
+
+    # Default response
+    else:
+        return """💰 **Personal Finance Fundamentals**
+
+1. **Emergency Fund**: Save 3-6 months of expenses
+2. **Debt Management**: Pay off high-interest debt first
+3. **Budgeting**: Track income and expenses monthly
+4. **Investing**: Start with low-cost index funds
+5. **Insurance**: Protect against major financial risks
+
+📚 **Recommended Reading**: "The Total Money Makeover" by Dave Ramsey
+
+💡 **Next Step**: Choose one area to focus on this month and take action!"""
 
