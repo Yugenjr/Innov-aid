@@ -26,3 +26,15 @@ class Session(BaseModel):
 
 class SessionList(BaseModel):
     sessions: List[Session]
+
+class FraudDetectionRequest(BaseModel):
+    content: str
+    analysis_type: str = "general"  # "general" or "financial"
+
+class FraudDetectionResponse(BaseModel):
+    detected_content: str
+    awareness_message: str
+    provider: str
+    model: str
+    success: bool
+    analysis_type: str = "general"

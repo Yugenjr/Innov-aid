@@ -40,3 +40,44 @@ api.interceptors.response.use(
   }
 )
 
+// Type definitions
+export interface ChatRequest {
+  user_input: string
+  scenario_context?: string
+  user_mode?: string
+}
+
+export interface ChatResponse {
+  response: string
+  provider: string
+  used_fallback: boolean
+}
+
+export interface FraudDetectionRequest {
+  content: string
+  analysis_type?: string
+}
+
+export interface FraudDetectionResponse {
+  detected_content: string
+  awareness_message: string
+  provider: string
+  model: string
+  success: boolean
+  analysis_type?: string
+}
+
+// API functions
+export const chatAPI = {
+  sendMessage: (data: ChatRequest): Promise<ChatResponse> =>
+    api.post('/api/chat', data).then(res => res.data),
+}
+
+export const fraudAPI = {
+  detectFraud: (content: string, analysisType: string = 'general'): Promise<FraudDetectionResponse> =>
+    api.post('/api/fraud/detect', { content, analysis_type: analysisType }).then(res => res.data),
+
+  analyzeFinancial: (content: string): Promise<FraudDetectionResponse> =>
+    api.post('/api/fraud/analyze-financial', { content, analysis_type: 'financial' }).then(res => res.data),
+}
+

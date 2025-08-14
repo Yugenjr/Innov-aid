@@ -10,7 +10,7 @@ import Chatbot from './routes/Chatbot'
 import Budget from './routes/Budget'
 import Savings from './routes/Savings'
 import Investment from './routes/Investment'
-import Speech from './routes/Speech'
+import FraudDetection from './routes/FraudDetection'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 
 function ProtectedRoute({ element }: { element: JSX.Element }) {
@@ -29,7 +29,7 @@ const router = createBrowserRouter([
       { path: 'budget', element: <Budget /> },
       { path: 'savings', element: <Savings /> },
       { path: 'investment', element: <Investment /> },
-      { path: 'speech', element: <Speech /> },
+      { path: 'fraud-detection', element: <FraudDetection /> },
     ],
   },
 ])

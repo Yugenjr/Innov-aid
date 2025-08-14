@@ -1,11 +1,10 @@
-from fastapi import FastAPI, UploadFile, File, Header
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from .schemas import ChatRequest, ChatResponse, SessionCreate, Session, SessionList, Message
+from .schemas import ChatRequest, ChatResponse, SessionCreate, Session, SessionList, Message, FraudDetectionRequest, FraudDetectionResponse
 from .service import generate_chat_response
 from .finance import BudgetInput, BudgetAnalysis, analyze_budget, SavingsInput, SavingsProjection, project_savings, InvestInput, InvestOutput, invest_calculate
-from .speech import call_deepgram, call_elevenlabs
+from .fraud_detection import detect_fraud, analyze_financial_content
 from .storage import create_session, list_sessions, get_session, update_session_messages
-import base64
 import os
 
 app = FastAPI(title="Finance Chatbot API", version="0.1.0")
@@ -81,16 +80,24 @@ def savings_project(payload: SavingsInput):
 def invest_calc(payload: InvestInput):
     return invest_calculate(payload)
 
-# Speech endpoints
-@app.post("/api/speech/transcribe")
-async def transcribe(file: UploadFile = File(...), content_type: str | None = Header(default=None)):
-    audio_bytes = await file.read()
-    text = call_deepgram(audio_bytes, content_type)
-    return {"text": text}
+# Fraud Detection endpoints
+@app.post("/api/fraud/detect", response_model=FraudDetectionResponse)
+def detect_fraud_content(request: FraudDetectionRequest):
+    """
+    Detect fraud/scam content in text using FraudAwarenessGPT
+    """
+    if request.analysis_type == "financial":
+        result = analyze_financial_content(request.content)
+    else:
+        result = detect_fraud(request.content)
 
-@app.post("/api/speech/tts")
-async def tts(body: dict):
-    txt = body.get("text", "")
-    audio = call_elevenlabs(txt)
-    return {"audio_base64": base64.b64encode(audio).decode("utf-8")}
+    return FraudDetectionResponse(**result)
+
+@app.post("/api/fraud/analyze-financial", response_model=FraudDetectionResponse)
+def analyze_financial_fraud(request: FraudDetectionRequest):
+    """
+    Specialized financial fraud detection for investment scams, phishing, etc.
+    """
+    result = analyze_financial_content(request.content)
+    return FraudDetectionResponse(**result)
 

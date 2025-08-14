@@ -17,7 +17,7 @@ export default function RootLayout() {
           <nav className="flex items-center gap-4">
             <NavLink to="/" className={linkClass}>Home</NavLink>
             <NavLink to="/chat" className={linkClass}>Chatbot</NavLink>
-            <NavLink to="/speech" className={linkClass}>Speech</NavLink>
+            <NavLink to="/fraud-detection" className={linkClass}>🔒 Fraud Detection</NavLink>
             <NavLink to="/budget" className={linkClass}>Budget</NavLink>
             <NavLink to="/savings" className={linkClass}>Savings</NavLink>
             <NavLink to="/investment" className={linkClass}>Investment</NavLink>

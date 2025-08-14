@@ -2,6 +2,19 @@
 
 Your comprehensive personal finance application built with React + FastAPI, featuring AI-powered advice and complete financial tools.
 
+## 🔑 Environment Setup (Required for FraudAwarenessGPT)
+
+### 1. Set up API Keys
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env and add your Groq API key
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+**Get your Groq API key from:** https://console.groq.com/
+
 ## 🚀 Quick Start
 
 ### 1. Start the Backend (FastAPI)
@@ -31,6 +44,14 @@ npm run dev
 - **AI Models**: Granite AI, Gemini AI with intelligent fallbacks
 - **Enhanced UI**: Structured responses with bullet points and numbering
 - **Error Handling**: Graceful fallbacks and user-friendly error messages
+
+### 🔒 FraudAwarenessGPT
+- **AI-Powered Fraud Detection**: Using Groq Llama 3 8B model
+- **Phishing Detection**: Identify suspicious emails and messages
+- **Investment Scam Analysis**: Detect Ponzi schemes and fake investments
+- **Financial Fraud Protection**: Banking scams, fake loan offers
+- **Real-time Analysis**: Instant fraud detection with awareness messages
+- **Educational Tips**: Built-in fraud prevention education
 
 ### 📊 Budget Tracker
 - **50/30/20 Rule Analysis**: Automatic categorization and recommendations
